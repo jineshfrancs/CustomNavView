@@ -31,7 +31,7 @@ public class NavigationActivity extends AppCompatActivity implements CustomNavig
         prepareListItems();
         menuAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, menuList);
         navView.setAdapter(menuAdapter);
-        navView.setHeaderView(getHeader());
+        navView.setHeaderView(getHeader(),20);
         navView.setOnNavigationItemSelectedListner(this);
         navView.setSelectionBackGround(getResources().getColor(R.color.colorAccent));
         drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {

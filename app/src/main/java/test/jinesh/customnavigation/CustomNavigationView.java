@@ -25,13 +25,14 @@ import android.widget.ScrollView;
  */
 
 public class CustomNavigationView extends ScrimInsetsFrameLayout {
-    private ScrollView listView;
+    private ScrollView scrollView;
     private ListAdapter adapter;
     private Drawable background;
     private LinearLayout linearLayout;
-    private int backGroundColor=0xffe2e2e2;
-    private  int selectedIndex=-1;
+    private int backGroundColor = 0xffe2e2e2;
+    View[] childView;
     private static NavigationItemSelectedListner navigationItemSelectedListner;
+
     public CustomNavigationView(Context context) {
         super(context);
         init(context);
@@ -45,30 +46,33 @@ public class CustomNavigationView extends ScrimInsetsFrameLayout {
 
     private void init(Context context) {
         FrameLayout.LayoutParams listParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        listView = new ScrollView(context);
+        scrollView = new ScrollView(context);
         linearLayout = new LinearLayout(context);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
         linearLayout.setLayoutParams(listParams);
         listParams.gravity = Gravity.START;
-        listView.setLayoutParams(listParams);
-        listView.setVerticalScrollBarEnabled(false);
-        listView.setHorizontalScrollBarEnabled(false);
+        scrollView.setLayoutParams(listParams);
+        scrollView.setVerticalScrollBarEnabled(false);
+        scrollView.setHorizontalScrollBarEnabled(false);
         if (background != null)
             setBackground(background);
         else
             setBackgroundColor(0xffffffff);
-        listView.addView(linearLayout);
-        addView(listView);
+        scrollView.addView(linearLayout);
+        addView(scrollView);
         setFitsSystemWindows(true);
 
     }
 
-    View[] childView;
-
+    /**
+     * Sets a List adapter to display navigation items
+     *
+     * @param adapter adapter to set the nav action items
+     */
     public void setAdapter(final ListAdapter adapter) {
         this.adapter = adapter;
         final int defColor = 0xffffffff;
-        childView=new View[adapter.getCount()];
+        childView = new View[adapter.getCount()];
 
         for (int index = 0; index < adapter.getCount(); index++) {
             childView[index] = adapter.getView(index, null, this);
@@ -84,40 +88,80 @@ public class CustomNavigationView extends ScrimInsetsFrameLayout {
                         else
                             childView[innerIndex].setBackgroundColor(backGroundColor);
                     }
-                    if(navigationItemSelectedListner!=null)
-                        navigationItemSelectedListner.onItemSelected(childView[finalIndex],finalIndex);
-                     selectedIndex=finalIndex;
+                    if (navigationItemSelectedListner != null)
+                        navigationItemSelectedListner.onItemSelected(childView[finalIndex], finalIndex);
+
                 }
             });
             linearLayout.addView(childView[index]);
         }
 
     }
-    public void setHeaderView(View view){
-        linearLayout.addView(view,0);
+
+    /**
+     * Sets the header view for the navigation drawer along with the bottom margin
+     *
+     * @param view         header view for the navigation drawer
+     * @param marginBottom bottom margin of header view
+     */
+    public void setHeaderView(View view, int marginBottom) {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.setMargins(0, 0, 0, marginBottom);
+        view.setLayoutParams(layoutParams);
+        linearLayout.addView(view, 0);
     }
+
+    /**
+     * Sets the specified drawable to the background of navigation drawer
+     *
+     * @param backGround drawable for the background
+     */
     public void setBackGround(Drawable backGround) {
         background = backGround;
         setBackground(backGround);
     }
-    public void setSelectionBackGround(int color) {
-       backGroundColor=color;
+
+    /**
+     * Sets the specified background color to the navigation drawer
+     *
+     * @param backGround background color for the navigation drawer
+     */
+    public void setBackGround(int backGround) {
+        setBackgroundColor(backGround);
     }
+
+    /**
+     * Sets the background color for the item selection indicator
+     *
+     * @param color background color to set
+     */
+    public void setSelectionBackGround(int color) {
+        backGroundColor = color;
+    }
+
+    /**
+     * Returns the nav item adapter
+     *
+     * @return ListAdapter
+     */
     public ListAdapter getAdapter() {
         return adapter;
     }
 
-   public interface NavigationItemSelectedListner{
-       void onItemSelected(View view,int position);
-   }
+    /**
+     * interface to notify click actions on navigation items
+     */
+    public interface NavigationItemSelectedListner {
+        void onItemSelected(View view, int position);
+    }
 
-    public  void setOnNavigationItemSelectedListner(NavigationItemSelectedListner navigationItemSelectedListner) {
+    /**
+     * Sets a item click listner,which notifies the click actions on the action items
+     *
+     * @param navigationItemSelectedListner listner notifies item click with particular position
+     */
+    public void setOnNavigationItemSelectedListner(NavigationItemSelectedListner navigationItemSelectedListner) {
         CustomNavigationView.navigationItemSelectedListner = navigationItemSelectedListner;
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-
-    }
 }
