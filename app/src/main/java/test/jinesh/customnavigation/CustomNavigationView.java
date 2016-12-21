@@ -28,11 +28,14 @@ public class CustomNavigationView extends ScrimInsetsFrameLayout {
     private ScrollView scrollView;
     private ListAdapter adapter;
     private Drawable background;
-    private LinearLayout linearLayout;
+    private LinearLayout linearLayout,mainLinearLayout;
     private int backGroundColor = 0xffe2e2e2;
-    View[] childView;
+    private View[] childView;
+    public static final int FULL_SCROLLABLE = -1;
+    public static final int MENU_ITEM_SCROLLABLE = -2;
     private static NavigationItemSelectedListner navigationItemSelectedListner;
-
+    private int state = FULL_SCROLLABLE;
+    private boolean isHeaderDrawn=false;
     public CustomNavigationView(Context context) {
         super(context);
         init(context);
@@ -48,8 +51,11 @@ public class CustomNavigationView extends ScrimInsetsFrameLayout {
         FrameLayout.LayoutParams listParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         scrollView = new ScrollView(context);
         linearLayout = new LinearLayout(context);
+        mainLinearLayout=new LinearLayout(context);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
         linearLayout.setLayoutParams(listParams);
+        mainLinearLayout.setOrientation(LinearLayout.VERTICAL);
+        mainLinearLayout.setLayoutParams(listParams);
         listParams.gravity = Gravity.START;
         scrollView.setLayoutParams(listParams);
         scrollView.setVerticalScrollBarEnabled(false);
@@ -59,7 +65,8 @@ public class CustomNavigationView extends ScrimInsetsFrameLayout {
         else
             setBackgroundColor(0xffffffff);
         scrollView.addView(linearLayout);
-        addView(scrollView);
+        mainLinearLayout.addView(scrollView);
+        addView(mainLinearLayout);
         setFitsSystemWindows(true);
 
     }
@@ -105,10 +112,18 @@ public class CustomNavigationView extends ScrimInsetsFrameLayout {
      * @param marginBottom bottom margin of header view
      */
     public void setHeaderView(View view, int marginBottom) {
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        layoutParams.setMargins(0, 0, 0, marginBottom);
-        view.setLayoutParams(layoutParams);
-        linearLayout.addView(view, 0);
+        if(state==FULL_SCROLLABLE) {
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            layoutParams.setMargins(0, 0, 0, marginBottom);
+            view.setLayoutParams(layoutParams);
+            linearLayout.addView(view, 0);
+        }else if(state==MENU_ITEM_SCROLLABLE){
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            layoutParams.setMargins(0, 0, 0, marginBottom);
+            view.setLayoutParams(layoutParams);
+            mainLinearLayout.addView(view, 0);
+        }
+        isHeaderDrawn=true;
     }
 
     /**
@@ -162,6 +177,30 @@ public class CustomNavigationView extends ScrimInsetsFrameLayout {
      */
     public void setOnNavigationItemSelectedListner(NavigationItemSelectedListner navigationItemSelectedListner) {
         CustomNavigationView.navigationItemSelectedListner = navigationItemSelectedListner;
+    }
+
+    /**
+     * Sets scroll state to navigation view
+     *
+     * @param state FULL_SCROLLABLE - whole layout scrollable
+     *              MENU_ITEM_SCROLLABLE - only menu items will be scrollable
+     */
+    public void setScrollState(int state) {
+        if(this.state!=state) {
+            if(isHeaderDrawn) {
+                if (this.state == FULL_SCROLLABLE) {
+                    View removedView = linearLayout.getChildAt(0);
+                    linearLayout.removeViewAt(0);
+                    mainLinearLayout.addView(removedView,0);
+                }else if(this.state ==MENU_ITEM_SCROLLABLE){
+                    View removedView = mainLinearLayout.getChildAt(0);
+                    mainLinearLayout.removeViewAt(0);
+                    linearLayout.addView(removedView,0);
+                }
+
+            }
+        }
+        this.state = state;
     }
 
 }

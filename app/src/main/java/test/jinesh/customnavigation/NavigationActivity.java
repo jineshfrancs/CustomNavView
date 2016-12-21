@@ -33,6 +33,7 @@ public class NavigationActivity extends AppCompatActivity implements CustomNavig
         navView.setAdapter(menuAdapter);
         navView.setHeaderView(getHeader(),20);
         navView.setOnNavigationItemSelectedListner(this);
+        navView.setScrollState(CustomNavigationView.MENU_ITEM_SCROLLABLE);
         navView.setSelectionBackGround(getResources().getColor(R.color.colorAccent));
         drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
